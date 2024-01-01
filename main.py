@@ -22,23 +22,26 @@ def display_board(board):
 # Set up boards
 player_board = [['O' for _ in range(10)] for _ in range(10)]
 
+# Creating bow coordinates and 0-indexed coordinates of player's ship
 print("Welcome to Battleship!")
 x_cord = int(input("You get 1 battleship. Yeah... budget's tight this year. Where do you want her? Bow x-coordinate (1-10): "))
 y_cord = int(input("Bow y-coordinate (1-10): "))
+x = x_cord-1
+y = y_cord-1
 
 # Create player battleship and update board
 player_battleship = Ship()
-player_board[y_cord-1][x_cord-1] = "B"
+player_board[y][x] = "B"
 
-# Checking if ship can be placed left or right
+# Checking if player's ship can be placed left or right
 possible_placements = ["up", "down", "left", "right"]
-if x_cord-1 < 4:
+if x < 4:
   possible_placements.remove("left")
-if x_cord-1 > 5:
+if x > 5:
   possible_placements.remove("right")
-if y_cord-1 < 4:
+if y < 4:
   possible_placements.remove("up")
-if y_cord-1 > 5:
+if y > 5:
   possible_placements.remove("down")
 
 display_board(player_board)
@@ -53,17 +56,17 @@ while placing:
   if placement in possible_placements:
     for i in range(5):
       if placement == "left":
-        player_board[y_cord-1][x_cord-i-1] = "B"
-        player_battleship.coords.append((x_cord-1-i, y_cord-1))
+        player_board[y][x-i] = "B"
+        player_battleship.coords.append((x-i, y))
       elif placement == "right":
-        player_board[y_cord-1][x_cord+i-1] = "B"
-        player_battleship.coords.append((x_cord-1+i, y_cord-1))
+        player_board[y][x+i] = "B"
+        player_battleship.coords.append((x+i, y))
       elif placement == "up":
-        player_board[y_cord-i-1][x_cord-1] = "B"
-        player_battleship.coords.append((x_cord-1, y_cord-1-i))
+        player_board[y-i][x] = "B"
+        player_battleship.coords.append((x, y-i))
       elif placement == "down":
-        player_board[y_cord+i-1][x_cord-1] = "B"
-        player_battleship.coords.append((x_cord-1, y_cord-1+i))
+        player_board[y+i][x] = "B"
+        player_battleship.coords.append((x, y+i))
       placing = False
   else:
     print("\nThat's not a valid option. Try again.")
@@ -89,28 +92,28 @@ plays = 0
 while player_battleship.coords:
   picking = True
   while picking:
-    random_x_cord = random.randint(1, 10)
-    random_y_cord = random.randint(1, 10)
-    current_pick = player_board[random_y_cord-1][random_x_cord-1]
+    random_x_cord = random.randint(0, 9)
+    random_y_cord = random.randint(0, 9)
+    current_pick = player_board[random_y_cord][random_x_cord]
     # loops through to make sure AI doesn't choose already shot sector
     if current_pick in ["O", "B"]:
-      print(f"\n      {random_x_cord}, {random_y_cord}!")
+      print(f"\n      {random_x_cord+1}, {random_y_cord+1}!")
 
       # AI hits battleship
       if current_pick == "B":
 
-        player_board[random_y_cord-1][random_x_cord-1] = "X"
+        player_board[random_y_cord][random_x_cord] = "X"
         print("      BOOM!")
         display_board(player_board)
         time.sleep(1)
         print(f"\nYeah mf!! Hit! Back to shooting off my shots at random.")
-        player_battleship.coords.remove((random_x_cord-1, random_y_cord-1))
+        player_battleship.coords.remove((random_x_cord, random_y_cord))
         time.sleep(1)
 
       # AI misses
       else:
         time.sleep(0.3)
-        player_board[random_y_cord-1][random_x_cord-1] = "-"
+        player_board[random_y_cord][random_x_cord] = "-"
         display_board(player_board)
 
       # updates after each time AI shoots
