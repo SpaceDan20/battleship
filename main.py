@@ -3,30 +3,28 @@ import time
 
 class Ship:
   # Constructor
-  def __init__(self, type):
-    self.type = type
-    self.ship_bounds = {"battleship": 3}
+  def __init__(self, ship_type, size):
+    self.ship_type = ship_type
+    self.size = size
     self.coords = []
 
-  def create_bounds(self, x, y):
+  def find_orientations(self, x, y):
     """Takes x and y coordinates and returns possible orientations ship can be built"""
-    bounds = self.ship_bounds[self.type]
-    print(f"These the mf bounds: {bounds}")
-    possible_placements = ["up", "down", "left", "right"]
-    if x < 4:
-      possible_placements.remove("left")
-    if x > 5:
-      possible_placements.remove("right")
-    if y < 4:
-      possible_placements.remove("up")
-    if y > 5:
-      possible_placements.remove("down")
+    possible_placements = []
+    if y - self.size + 1 >= 0:
+      possible_placements.append("up")
+    if y + self.size - 1 <= 9:
+      possible_placements.append("down")
+    if x - self.size + 1 >= 0:
+      possible_placements.append("left")
+    if x + self.size - 1 <= 9:
+      possible_placements.append("right")
     return possible_placements
 
   def place_ship(self, x, y):
-    """Takes x and y coordinates and calls create_bounds() function to determine possible placements. Asks player for orientation, then builds ship in that orientation."""
+    """Takes x and y coordinates and calls find_orientations() function to determine possible placements. Asks player for orientation, then builds ship in that orientation."""
     player_board[y][x] = "S"
-    possible_orientations = self.create_bounds(x, y)
+    possible_orientations = self.find_orientations(x, y)
     display_board(player_board)
     print("""\n
           This is your ship so far. It's the S surrounded by Os of water.
@@ -37,19 +35,19 @@ class Ship:
     while placing:
       chosen_orientation = input(f"You can create the rest of the ship in these orientations: {possible_orientations}. Which one do you want? ").lower()
       if chosen_orientation in possible_orientations:
-        for i in range(5):
+        for i in range(self.size):
           if chosen_orientation == "left":
             player_board[y][x-i] = "S"
-            player_battleship.coords.append((x-i, y))
+            self.coords.append((x-i, y))
           elif chosen_orientation == "right":
             player_board[y][x+i] = "S"
-            player_battleship.coords.append((x+i, y))
+            self.coords.append((x+i, y))
           elif chosen_orientation == "up":
             player_board[y-i][x] = "S"
-            player_battleship.coords.append((x, y-i))
+            self.coords.append((x, y-i))
           elif chosen_orientation == "down":
             player_board[y+i][x] = "S"
-            player_battleship.coords.append((x, y+i))
+            self.coords.append((x, y+i))
         placing = False
       else:
         print("\nThat's not a valid option. Try again.")
@@ -77,7 +75,7 @@ x = x_cord-1
 y = y_cord-1
 
 # Create player battleship and update board
-player_battleship = Ship("battleship")
+player_battleship = Ship(ship_type="battleship", size=5)
 player_battleship.place_ship(x, y)
 
 print("----------------------------------------------------")
