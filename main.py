@@ -23,11 +23,11 @@ class Ship:
 
   def place_ship(self, x, y):
     """Takes x and y coordinates and calls find_orientations() function to determine possible placements. Asks player for orientation, then builds ship in that orientation."""
-    player_board[y][x] = "S"
+    player_board[y][x] = ship_letters[self.ship_type]
     possible_orientations = self.find_orientations(x, y)
     display_board(player_board)
-    print("""\n
-          This is your ship so far. It's the S surrounded by Os of water.
+    print(f"""\n
+          This is your ship so far. It's the {ship_letters[self.ship_type]} surrounded by Os of water.
           That's right. We're constructing her out in the middle of the sea.
           Why? Cause we're insane. (and not very practical).
     """)
@@ -37,16 +37,16 @@ class Ship:
       if chosen_orientation in possible_orientations:
         for i in range(self.size):
           if chosen_orientation == "left":
-            player_board[y][x-i] = "S"
+            player_board[y][x-i] = ship_letters[self.ship_type]
             self.coords.append((x-i, y))
           elif chosen_orientation == "right":
-            player_board[y][x+i] = "S"
+            player_board[y][x+i] = ship_letters[self.ship_type]
             self.coords.append((x+i, y))
           elif chosen_orientation == "up":
-            player_board[y-i][x] = "S"
+            player_board[y-i][x] = ship_letters[self.ship_type]
             self.coords.append((x, y-i))
           elif chosen_orientation == "down":
-            player_board[y+i][x] = "S"
+            player_board[y+i][x] = ship_letters[self.ship_type]
             self.coords.append((x, y+i))
         placing = False
       else:
@@ -63,6 +63,14 @@ def display_board(board):
   for row in board:
     print(" ".join(row))
 
+def check_for_ships(board, ship_letters):
+  # Takes current board and iterates through sea spaces to check if any of the player's ships remain. Returns True if all ships are sunk.
+  for row in board:
+    for sea_space in row:
+      if any(letter in sea_space for letter in ship_letters):
+        return False
+  return True
+
 # Player Introduction
 print("""
       Welcome to Battleship!
@@ -71,39 +79,40 @@ print("""
       At the moment, our construction team isn't the brightest, so if you build two ships at the same place... well...
       Let's just say they won't bat an eye when the two ships merge into one. Try to avoid doing that, as smart as it seems.
       """)
+ship_letters = {"patrol boat": "P", "destroyer": "D", "submarine": "S", "battleship": "B", "carrier": "C"}
+ship_letter_list = [ship_letters[item] for item in ship_letters]
 
 # Set up boards
 player_board = [['O' for _ in range(10)] for _ in range(10)]
 
-# Creating bow coordinates and 0-indexed coordinates of player's ship
-
 # Patrol Boat
 player_patrol_boat = Ship(ship_type="patrol boat", size=1)
-x = int(input(f"You get a Patrol Boat. Where do you want her? X-coordinate (1-10): ")) - 1
+x = int(input(f"\nYou get a Patrol Boat. Where do you want her? X-coordinate (1-10): ")) - 1
 y = int(input("Bow y-coordinate (1-10): ")) - 1
-player_patrol_boat.place_ship(x, y)
+player_board[y][x] = "P"
+display_board(player_board)
 
 # Destroyer
 player_destroyer = Ship(ship_type="destroyer", size=2)
-x = int(input(f"You get a Destroyer. Where do you want her? X-coordinate (1-10): ")) - 1
+x = int(input(f"\nYou get a Destroyer. Where do you want her? X-coordinate (1-10): ")) - 1
 y = int(input("Bow y-coordinate (1-10): ")) - 1
 player_destroyer.place_ship(x, y)
 
 # Submarine
 player_submarine = Ship(ship_type="submarine", size=3)
-x = int(input(f"You get a Submarine. Where do you want her? X-coordinate (1-10): ")) - 1
+x = int(input(f"\nYou get a Submarine. Where do you want her? X-coordinate (1-10): ")) - 1
 y = int(input("Bow y-coordinate (1-10): ")) - 1
 player_submarine.place_ship(x, y)
 
 # Battleship
 player_battleship = Ship(ship_type="battleship", size=4)
-x = int(input(f"You get a Battleship! Where do you want her? X-coordinate (1-10): ")) - 1
+x = int(input(f"\nYou get a Battleship! Where do you want her? X-coordinate (1-10): ")) - 1
 y = int(input("Bow y-coordinate (1-10): ")) - 1
 player_battleship.place_ship(x, y)
 
 # Carrier
 player_carrier = Ship(ship_type="carrier", size=5)
-x = int(input(f"You get an Aircraft Carrier. Where do you want her? X-coordinate (1-10): ")) - 1
+x = int(input(f"\nYou get an Aircraft Carrier. Where do you want her? X-coordinate (1-10): ")) - 1
 y = int(input("Bow y-coordinate (1-10): ")) - 1
 player_carrier.place_ship(x, y)
 
@@ -112,7 +121,7 @@ print("Player board:")
 display_board(player_board)
 
 print("""\n
-      This is your part of the sea. For now. The S's represent your ships.
+      This is your part of the sea. For now. The letters represent your ships.
       But...
       I got some bad news.
       We got so carried away with spending while building the ships that...
@@ -138,11 +147,11 @@ while not all_ships_sunk:
     random_y_cord = random.randint(0, 9)
     current_pick = player_board[random_y_cord][random_x_cord]
     # loops through to make sure computer doesn't choose already shot sector
-    if current_pick in ["O", "S"]:
+    if current_pick not in ["X", "-"]:
       print(f"\n      {random_x_cord+1}, {random_y_cord+1}!")
 
       # Computer hits battleship
-      if current_pick == "S":
+      if current_pick in ship_letter_list:
 
         player_board[random_y_cord][random_x_cord] = "X"
         print("      BOOM!")
@@ -159,14 +168,14 @@ while not all_ships_sunk:
 
       # updates after each time computer shoots
       plays += 1
-      all_ships_sunk = all("S" not in row for row in player_board)
+      all_ships_sunk = check_for_ships(player_board, ship_letter_list)
       picking = False
 
 print("Get SUNK mf!")
 
 if plays > 75:
-  print(f"\nIt took the enemy computer {plays} turns to sink your battleship. What an idiot. Anyway, thanks for playing. Better luck next time.")
+  print(f"\nIt took the enemy computer {plays} turns to sink your ships. What an idiot. Anyway, thanks for playing. Better luck next time.")
 elif plays < 20:
-  print(f"\nIt took the enemy computer {plays} turns to sink your battleship. Oh wow, what a lucky fella. Anyway, thanks for playing. Better luck next time.")
+  print(f"\nIt took the enemy computer {plays} turns to sink your ships. Oh wow, what a lucky fella. Anyway, thanks for playing. Better luck next time.")
 else:
-  print(f"\nIt took the enemy computer {plays} turns to sink your battleship. Thanks for playing. Better luck next time.")
+  print(f"\nIt took the enemy computer {plays} turns to sink your ships. Thanks for playing. Better luck next time.")
