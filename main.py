@@ -8,6 +8,12 @@ class Ship:
     self.size = size
     self.coords = []
 
+  def get_user_coords(self):
+    """Gets x and y coordinates for current ship and returns them"""
+    x = int(input(f"\nYou get a {self.ship_type}. Where do you want her? X-coordinate (1-10): ")) - 1
+    y = int(input("Bow y-coordinate (1-10): ")) - 1
+    return x, y
+
   def find_orientations(self, x, y):
     """Takes x and y coordinates and returns possible orientations ship can be built"""
     possible_placements = []
@@ -21,8 +27,13 @@ class Ship:
       possible_placements.append("right")
     return possible_placements
 
-  def place_ship(self, x, y):
-    """Takes x and y coordinates and calls find_orientations() function to determine possible placements. Asks player for orientation, then builds ship in that orientation."""
+  def place_ship(self):
+    """
+    Calls get_user_coords() to get x and y coordinates from player.
+    Calls find_orientations() function to determine possible placements. 
+    Asks player for orientation, then builds ship in that orientation.
+    """
+    x, y = self.get_user_coords()
     player_board[y][x] = ship_letters[self.ship_type]
     possible_orientations = self.find_orientations(x, y)
     display_board(player_board)
@@ -85,36 +96,22 @@ ship_letter_list = [ship_letters[item] for item in ship_letters]
 # Set up boards
 player_board = [['O' for _ in range(10)] for _ in range(10)]
 
-# Patrol Boat
+# Create player's patrol boat
 player_patrol_boat = Ship(ship_type="patrol boat", size=1)
 x = int(input(f"\nYou get a Patrol Boat. Where do you want her? X-coordinate (1-10): ")) - 1
 y = int(input("Bow y-coordinate (1-10): ")) - 1
 player_board[y][x] = "P"
 display_board(player_board)
 
-# Destroyer
+# Create remaining player ships and place them on the board, using player's inputs in 'place_ship()'
 player_destroyer = Ship(ship_type="destroyer", size=2)
-x = int(input(f"\nYou get a Destroyer. Where do you want her? X-coordinate (1-10): ")) - 1
-y = int(input("Bow y-coordinate (1-10): ")) - 1
-player_destroyer.place_ship(x, y)
-
-# Submarine
+player_destroyer.place_ship()
 player_submarine = Ship(ship_type="submarine", size=3)
-x = int(input(f"\nYou get a Submarine. Where do you want her? X-coordinate (1-10): ")) - 1
-y = int(input("Bow y-coordinate (1-10): ")) - 1
-player_submarine.place_ship(x, y)
-
-# Battleship
+player_submarine.place_ship()
 player_battleship = Ship(ship_type="battleship", size=4)
-x = int(input(f"\nYou get a Battleship! Where do you want her? X-coordinate (1-10): ")) - 1
-y = int(input("Bow y-coordinate (1-10): ")) - 1
-player_battleship.place_ship(x, y)
-
-# Carrier
+player_battleship.place_ship()
 player_carrier = Ship(ship_type="carrier", size=5)
-x = int(input(f"\nYou get an Aircraft Carrier. Where do you want her? X-coordinate (1-10): ")) - 1
-y = int(input("Bow y-coordinate (1-10): ")) - 1
-player_carrier.place_ship(x, y)
+player_carrier.place_ship()
 
 print("----------------------------------------------------")
 print("Player board:")
