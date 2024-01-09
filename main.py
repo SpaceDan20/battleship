@@ -1,78 +1,48 @@
 import random
 import time
+from ship import Ship
+from board import Board
 
-class Ship:
-  # Constructor
-  def __init__(self, ship_type, size):
-    self.ship_type = ship_type
-    self.size = size
-    self.coords = []
 
-  def get_user_coords(self):
-    """Gets x and y coordinates for current ship and returns them"""
-    x = int(input(f"\nYou get a {self.ship_type}. Where do you want her? X-coordinate (1-10): ")) - 1
-    y = int(input("Bow y-coordinate (1-10): ")) - 1
-    return x, y
+def get_coords(ship):
+  # Gets user coordinates for current ship
+  x = int(input(f"\nYou get a {ship.ship_type}. Where do you want her? X-coordinate (1-10): ")) - 1
+  y = int(input("Bow y-coordinate (1-10): ")) - 1
+  return x, y
 
-  def find_orientations(self, x, y):
-    """Takes x and y coordinates and returns possible orientations ship can be built"""
-    possible_placements = []
-    if y - self.size + 1 >= 0:
-      possible_placements.append("up")
-    if y + self.size - 1 <= 9:
-      possible_placements.append("down")
-    if x - self.size + 1 >= 0:
-      possible_placements.append("left")
-    if x + self.size - 1 <= 9:
-      possible_placements.append("right")
-    return possible_placements
 
-  def place_ship(self):
-    """
-    Calls get_user_coords() to get x and y coordinates from player.
-    Calls find_orientations() function to determine possible placements. 
-    Asks player for orientation, then builds ship in that orientation.
-    """
-    x, y = self.get_user_coords()
-    player_board[y][x] = ship_letters[self.ship_type]
-    possible_orientations = self.find_orientations(x, y)
-    display_board(player_board)
-    print(f"""\n
-          This is your ship so far. It's the {ship_letters[self.ship_type]} surrounded by Os of water.
-          That's right. We're constructing her out in the middle of the sea.
-          Why? Cause we're insane. (and not very practical).
-    """)
-    placing = True
-    while placing:
-      chosen_orientation = input(f"You can create the rest of the ship in these orientations: {possible_orientations}. Which one do you want? ").lower()
-      if chosen_orientation in possible_orientations:
-        for i in range(self.size):
-          if chosen_orientation == "left":
-            player_board[y][x-i] = ship_letters[self.ship_type]
-            self.coords.append((x-i, y))
-          elif chosen_orientation == "right":
-            player_board[y][x+i] = ship_letters[self.ship_type]
-            self.coords.append((x+i, y))
-          elif chosen_orientation == "up":
-            player_board[y-i][x] = ship_letters[self.ship_type]
-            self.coords.append((x, y-i))
-          elif chosen_orientation == "down":
-            player_board[y+i][x] = ship_letters[self.ship_type]
-            self.coords.append((x, y+i))
-        placing = False
-      else:
-        print("\nThat's not a valid option. Try again.")
+def find_orientations(ship, x, y):
+  # Takes x and y coordinates and ship size to determine possible orientations
+  possible_orientations = []
+  if x - ship.size + 1 >= 0:
+    possible_orientations.append("up")
+  if y + ship.size - 1 <= 9:
+    possible_orientations.append("down")
+  if x - ship.size + 1 >= 0:
+    possible_orientations.append("left")
+  if x + ship.size - 1 <= 9:
+    possible_orientations.append("right")
+  return possible_orientations
 
-def display_board(board):
-  """
-  Displays the game board
 
-  Returns:
-  list(board): A 10x10 grid where O represents empty sea spaces, X represents a hit, and - represents a miss
-  """
-  print("")
-  for row in board:
-    print(" ".join(row))
+def ask_for_orientation(ship, possible_orientations, x, y):
+  # Takes ship and possible orientation and asks user which orientation it wants
+  placing = True
+  while placing:
+    chosen_orientation = input(f"You can create the rest of the ship in these orientations: {possible_orientations}. Which one do you want? ").lower()
+    if chosen_orientation in possible_orientations:
+      player_board.place_rest_of_ship(ship, chosen_orientation, x, y)
+      break
+
+
+def place_ship(ship):
+  x, y = get_coords(ship)
+  print(x, y)
+  player_board.place_bow(ship, x, y)
+  possible_orientations = find_orientations(ship, x, y)
+  ask_for_orientation(ship, possible_orientations, x, y)
+  player_board.show_board()
+
 
 def check_for_ships(board, ship_letters):
   # Takes current board and iterates through sea spaces to check if any of the player's ships remain. Returns True if all ships are sunk.
@@ -82,6 +52,7 @@ def check_for_ships(board, ship_letters):
         return False
   return True
 
+
 # Player Introduction
 print("""
       Welcome to Battleship!
@@ -90,32 +61,33 @@ print("""
       At the moment, our construction team isn't the brightest, so if you build two ships at the same place... well...
       Let's just say they won't bat an eye when the two ships merge into one. Try to avoid doing that, as smart as it seems.
       """)
-ship_letters = {"patrol boat": "P", "destroyer": "D", "submarine": "S", "battleship": "B", "carrier": "C"}
-ship_letter_list = [ship_letters[item] for item in ship_letters]
 
 # Set up boards
-player_board = [['O' for _ in range(10)] for _ in range(10)]
+player_board = Board()
 
 # Create player's patrol boat
-player_patrol_boat = Ship(ship_type="patrol boat", size=1)
-x = int(input(f"\nYou get a Patrol Boat. Where do you want her? X-coordinate (1-10): ")) - 1
-y = int(input("Bow y-coordinate (1-10): ")) - 1
-player_board[y][x] = "P"
-display_board(player_board)
+player_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
+x, y = get_coords(player_patrol_boat)
+player_board.place_bow(player_patrol_boat, x, y)
+player_board.show_board()
 
 # Create remaining player ships and place them on the board, using player's inputs in 'place_ship()'
-player_destroyer = Ship(ship_type="destroyer", size=2)
-player_destroyer.place_ship()
-player_submarine = Ship(ship_type="submarine", size=3)
-player_submarine.place_ship()
-player_battleship = Ship(ship_type="battleship", size=4)
-player_battleship.place_ship()
-player_carrier = Ship(ship_type="carrier", size=5)
-player_carrier.place_ship()
+# Destroyer
+player_destroyer = Ship(ship_type="destroyer", size=2, letter="D")
+place_ship(player_destroyer)
+# Submarine
+player_submarine = Ship(ship_type="submarine", size=3, letter="S")
+place_ship(player_submarine)
+# Battleship
+player_battleship = Ship(ship_type="battleship", size=4, letter="B")
+place_ship(player_battleship)
+# Carrier
+player_carrier = Ship(ship_type="carrier", size=5, letter="C")
+place_ship(player_carrier)
 
 print("----------------------------------------------------")
 print("Player board:")
-display_board(player_board)
+player_board.show_board()
 
 print("""\n
       This is your part of the sea. For now. The letters represent your ships.
@@ -135,6 +107,7 @@ time.sleep(2)
 
 plays = 0
 all_ships_sunk = False
+ship_letters = ["P", "D", "S", "B", "C"]
 
 # Iterates through until 'all_ships_sunk' finds no more "S"'s on the board, meaning all player ships have been sunk
 while not all_ships_sunk:
@@ -142,17 +115,17 @@ while not all_ships_sunk:
   while picking:
     random_x_cord = random.randint(0, 9)
     random_y_cord = random.randint(0, 9)
-    current_pick = player_board[random_y_cord][random_x_cord]
+    current_pick = player_board.board[random_y_cord][random_x_cord]
     # loops through to make sure computer doesn't choose already shot sector
     if current_pick not in ["X", "-"]:
       print(f"\n      {random_x_cord+1}, {random_y_cord+1}!")
 
       # Computer hits battleship
-      if current_pick in ship_letter_list:
+      if current_pick in ship_letters:
 
-        player_board[random_y_cord][random_x_cord] = "X"
+        player_board.board[random_y_cord][random_x_cord] = "X"
         print("      BOOM!")
-        display_board(player_board)
+        player_board.show_board()
         time.sleep(1)
         print(f"\nYeah mf!! Hit! Back to shooting off my shots at random.")
         time.sleep(1)
@@ -160,12 +133,12 @@ while not all_ships_sunk:
       # Computer misses
       else:
         time.sleep(0.3)
-        player_board[random_y_cord][random_x_cord] = "-"
-        display_board(player_board)
+        player_board.board[random_y_cord][random_x_cord] = "-"
+        player_board.show_board()
 
       # updates after each time computer shoots
       plays += 1
-      all_ships_sunk = check_for_ships(player_board, ship_letter_list)
+      all_ships_sunk = check_for_ships(player_board.board, ship_letters)
       picking = False
 
 print("Get SUNK mf!")
