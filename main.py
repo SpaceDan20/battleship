@@ -2,6 +2,8 @@ import random
 import time
 from ship import Ship
 from board import Board
+from player import Player
+from computer_player import ComputerPlayer
 
 
 def get_coords(ship):
@@ -14,7 +16,7 @@ def get_coords(ship):
 def find_orientations(ship, x, y):
   # Takes x and y coordinates and ship size to determine possible orientations
   possible_orientations = []
-  if x - ship.size + 1 >= 0:
+  if y - ship.size + 1 >= 0:
     possible_orientations.append("up")
   if y + ship.size - 1 <= 9:
     possible_orientations.append("down")
@@ -36,8 +38,8 @@ def ask_for_orientation(ship, possible_orientations, x, y):
 
 
 def place_ship(ship):
+  # runs other functions related to building a player's ship
   x, y = get_coords(ship)
-  print(x, y)
   player_board.place_bow(ship, x, y)
   possible_orientations = find_orientations(ship, x, y)
   ask_for_orientation(ship, possible_orientations, x, y)
@@ -45,12 +47,12 @@ def place_ship(ship):
 
 
 def check_for_ships(board, ship_letters):
-  # Takes current board and iterates through sea spaces to check if any of the player's ships remain. Returns True if all ships are sunk.
+  # Takes current board and iterates through sea spaces to check if any of the player's ships remain. Returns True if a ship is detected.
   for row in board:
     for sea_space in row:
       if any(letter in sea_space for letter in ship_letters):
-        return False
-  return True
+        return True
+  return False
 
 
 # Player Introduction
@@ -59,11 +61,14 @@ print("""
       Good news! The government allotted us more money at the expense of useless housing and road-fixing projects, so we have FIVE ships now!
       This will make us a VERY powerful navy that will put FEAR into the enemy computer.
       At the moment, our construction team isn't the brightest, so if you build two ships at the same place... well...
-      Let's just say they won't bat an eye when the two ships merge into one. Try to avoid doing that, as smart as it seems.
+      Let's just say they won't bat an eye when the two ships merge into one. Try to avoid doing that, as smart as that seems.
       """)
 
-# Set up boards
-player_board = Board()
+# Set up players and boards
+player = Player()
+computer_player = ComputerPlayer()
+player_board = Board("Player")
+computer_board = Board("Computer")
 
 # Create player's patrol boat
 player_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
@@ -85,67 +90,95 @@ place_ship(player_battleship)
 player_carrier = Ship(ship_type="carrier", size=5, letter="C")
 place_ship(player_carrier)
 
-print("----------------------------------------------------")
-print("Player board:")
+# Computer creates and places its ships
+computer_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
+computer_player.place_computer_boat(computer_patrol_boat, computer_board)
+computer_destroyer = Ship(ship_type="destroyer", size=2, letter="D")
+computer_player.place_computer_boat(computer_destroyer, computer_board)
+computer_submarine = Ship(ship_type="submarine", size=3, letter="S")
+computer_player.place_computer_boat(computer_submarine, computer_board)
+computer_battleship = Ship(ship_type="battleship", size=4, letter="B")
+computer_player.place_computer_boat(computer_battleship, computer_board)
+computer_carrier = Ship(ship_type="carrier", size=5, letter="C")
+computer_player.place_computer_boat(computer_carrier, computer_board)
+
+# Show boards
+computer_board.show_board()
 player_board.show_board()
 
 print("""\n
-      This is your part of the sea. For now. The letters represent your ships.
-      But...
-      I got some bad news.
-      We got so carried away with spending while building the ships that...
-      Yeah... we can't afford to buy any ammunition for the ships already placed in the water.
-      Unfortunate.
-      I'm gonna try to sort this out with the admiral without getting honorably discharged.
-      In the meantime, we've got reports of the enemy advancing on your position.
-      They will be firing relentlessly pretty soon, so... I don't know. Maybe duck?\n
+      This is your part of the sea. Let's keep it that way.
+      The letters represent your ships, who are willing to sling large-caliber shells
+      toward the enemy computer's ships in their part of the sea.
+      However, we must respect the laws of combat and only fire one at a time, before
+      waiting for the enemy to barrage one of our coordinates.
+      I don't know man, that's just what the admiral told me.
+      I tried to get permission for you to fire a salvo, but she declined it.
+      Said it was 'unhumanlike' ...
+      Personally, I think the computer is unhumanlike.
+      You know what? Nevermind. We'll be in combat pretty soon, commander.
+      General Quarters!!\n
       """)
 
-user_input = input("Okay. You ready? Type 'ready' or 'not': ")
-print("Doesn't matter! Here come the artillery shells!\n")
+user_input = input("Okay. You ready? Type 'ready' or 'not ready': ")
+print("Doesn't matter! Here come the shells!\n")
 time.sleep(2)
 
 plays = 0
 all_ships_sunk = False
 ship_letters = ["P", "D", "S", "B", "C"]
+any_player_ships = check_for_ships(player_board.board, ship_letters)
+any_computer_ships = check_for_ships(computer_board.board, ship_letters)
 
 # Iterates through until 'all_ships_sunk' finds no more "S"'s on the board, meaning all player ships have been sunk
-while not all_ships_sunk:
-  picking = True
-  while picking:
-    random_x_cord = random.randint(0, 9)
-    random_y_cord = random.randint(0, 9)
-    current_pick = player_board.board[random_y_cord][random_x_cord]
-    # loops through to make sure computer doesn't choose already shot sector
-    if current_pick not in ["X", "-"]:
-      print(f"\n      {random_x_cord+1}, {random_y_cord+1}!")
+while any_player_ships and any_computer_ships:
+  # Computer guesses
+  player_board.show_board()
+  # time.sleep(1)
+  computer_x, computer_y = computer_player.make_computer_guess()
+  print(f"The computer chooses {computer_x + 1}, {computer_y + 1}")
+  # time.sleep(2)
+  current_guess = player_board.board[computer_y][computer_x]
+  if current_guess not in ship_letters:
+    print("\nHaha he missed.")
+    player_board.board[computer_y][computer_x] = "-"
+  else:
+    print(f"Oh crap bro! He hit a {current_guess}!")
+    player_board.board[computer_y][computer_x] = "X"
+  player_board.show_board()
+  # time.sleep(2)
+  any_player_ships = check_for_ships(player_board.board, ship_letters)
 
-      # Computer hits battleship
-      if current_pick in ship_letters:
+  # Player guesses
+  computer_board.show_board()
+  guess_x, guess_y = player.make_player_guess()
+  current_player_guess = computer_board.board[guess_y][guess_x]
+  if current_player_guess not in ship_letters:
+    computer_board.board[guess_y][guess_x] = "-"
+    print("\nHaha YOU missed!")
+  else:
+    print(f"Wowza! You hit a {computer_board.board[guess_y][guess_x]}")
+    computer_board.board[guess_y][guess_x] = "X"
+  computer_board.show_board()
+  # time.sleep(2)
+  any_computer_ships = check_for_ships(computer_board.board, ship_letters)
 
-        player_board.board[random_y_cord][random_x_cord] = "X"
-        print("      BOOM!")
-        player_board.show_board()
-        time.sleep(1)
-        print(f"\nYeah mf!! Hit! Back to shooting off my shots at random.")
-        time.sleep(1)
 
-      # Computer misses
-      else:
-        time.sleep(0.3)
-        player_board.board[random_y_cord][random_x_cord] = "-"
-        player_board.show_board()
-
-      # updates after each time computer shoots
-      plays += 1
-      all_ships_sunk = check_for_ships(player_board.board, ship_letters)
-      picking = False
-
-print("Get SUNK mf!")
-
-if plays > 75:
-  print(f"\nIt took the enemy computer {plays} turns to sink your ships. What an idiot. Anyway, thanks for playing. Better luck next time.")
-elif plays < 20:
-  print(f"\nIt took the enemy computer {plays} turns to sink your ships. Oh wow, what a lucky fella. Anyway, thanks for playing. Better luck next time.")
+# Winning conditions
+if any_computer_ships:
+  player_board.show_board()
+  print("""
+Well, you blew it. All of our ships are gone. Good going, commander.
+Just wait until the admiral hears about this. She's gonna be PISSED at you.
+""")
 else:
-  print(f"\nIt took the enemy computer {plays} turns to sink your ships. Thanks for playing. Better luck next time.")
+  computer_board.show_board()
+  print("""
+We won??
+Wait, we won?!
+...
+I mean...
+Of course we won. I always knew you had it in you, commander.
+Just wait until the admiral hears about this.
+I'm definitely getting promoted!
+""")

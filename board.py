@@ -1,13 +1,15 @@
 class Board():
-    def __init__(self):
+    def __init__(self, name):
         self.board = [['O' for _ in range(10)] for _ in range(10)]
-        print(self)
+        self.name = name
 
     def show_board(self):
         # Prints current self.board (10x10 grid with sea spaces and any ships)
-        print("")
+        print("-------------------------")
+        print(f"{self.name} Board:")
         for row in self.board:
             print(" ".join(row))
+        print("-------------------------")
 
 
     def place_bow(self, ship, x, y):
@@ -26,3 +28,20 @@ class Board():
                 self.board[y-i][x] = ship.letter
             elif orientation == "down":
                 self.board[y+i][x] = ship.letter
+
+    def check_if_clear(self, ship, orientation, x, y):
+        spaces_to_fill = []
+        for i in range(1, ship.size):
+            if orientation == "left":
+                spaces_to_fill.append(self.board[y][x-i])
+            elif orientation == "right":
+                spaces_to_fill.append(self.board[y][x+i])
+            elif orientation == "up":
+                spaces_to_fill.append(self.board[y-i][x])
+            elif orientation == "down":
+                spaces_to_fill.append(self.board[y+i][x])
+        # returns false if any of the spaces to fill equal ship letters
+        if any(letter != 'O' for letter in spaces_to_fill):
+            return False
+        else:
+            return True
