@@ -6,3 +6,4 @@ class Ship:
     self.ship_type = ship_type
     self.size = size
     self.letter = letter
+    self.coords = []

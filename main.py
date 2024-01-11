@@ -33,8 +33,7 @@ def ask_for_orientation(ship, possible_orientations, x, y):
   while placing:
     chosen_orientation = input(f"You can create the rest of the ship in these orientations: {possible_orientations}. Which one do you want? ").lower()
     if chosen_orientation in possible_orientations:
-      player_board.place_rest_of_ship(ship, chosen_orientation, x, y)
-      break
+      return chosen_orientation
 
 
 def place_ship(ship):
@@ -42,7 +41,8 @@ def place_ship(ship):
   x, y = get_coords(ship)
   player_board.place_bow(ship, x, y)
   possible_orientations = find_orientations(ship, x, y)
-  ask_for_orientation(ship, possible_orientations, x, y)
+  orientation = ask_for_orientation(ship, possible_orientations, x, y)
+  player_board.place_rest_of_ship(ship, orientation, x, y)
   player_board.show_board()
 
 
@@ -105,7 +105,6 @@ computer_carrier = Ship(ship_type="carrier", size=5, letter="C")
 computer_player.place_computer_boat(computer_carrier, computer_board)
 
 # Show boards
-computer_board.show_board()
 player_board.show_board()
 
 print("""\n
