@@ -69,6 +69,8 @@ player = Player()
 computer_player = ComputerPlayer()
 player_board = Board("Player")
 computer_board = Board("Computer")
+# This board is the board shown to the player when taking turns firing
+hidden_computer_board = Board("Computer")
 
 # Create player's patrol boat
 player_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
@@ -134,10 +136,10 @@ any_computer_ships = check_for_ships(computer_board.board, ship_letters)
 while any_player_ships and any_computer_ships:
   # Computer guesses
   player_board.show_board()
-  # time.sleep(1)
+  time.sleep(1)
   computer_x, computer_y = computer_player.make_computer_guess()
   print(f"The computer chooses {computer_x + 1}, {computer_y + 1}")
-  # time.sleep(2)
+  time.sleep(2)
   current_guess = player_board.board[computer_y][computer_x]
   if current_guess not in ship_letters:
     print("\nHaha he missed.")
@@ -146,21 +148,23 @@ while any_player_ships and any_computer_ships:
     print(f"Oh crap bro! He hit a {current_guess}!")
     player_board.board[computer_y][computer_x] = "X"
   player_board.show_board()
-  # time.sleep(2)
+  time.sleep(2)
   any_player_ships = check_for_ships(player_board.board, ship_letters)
 
   # Player guesses
-  computer_board.show_board()
+  hidden_computer_board.show_board()
   guess_x, guess_y = player.make_player_guess()
   current_player_guess = computer_board.board[guess_y][guess_x]
   if current_player_guess not in ship_letters:
     computer_board.board[guess_y][guess_x] = "-"
+    hidden_computer_board.board[guess_y][guess_x] = "-"
     print("\nHaha YOU missed!")
   else:
     print(f"Wowza! You hit a {computer_board.board[guess_y][guess_x]}")
     computer_board.board[guess_y][guess_x] = "X"
-  computer_board.show_board()
-  # time.sleep(2)
+    hidden_computer_board.board[guess_y][guess_x] = "X"
+  hidden_computer_board.show_board()
+  time.sleep(2)
   any_computer_ships = check_for_ships(computer_board.board, ship_letters)
 
 
