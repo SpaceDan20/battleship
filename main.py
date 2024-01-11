@@ -56,14 +56,26 @@ def check_for_ships(board, ship_letters):
   return False
 
 
-def find_ship_matching_coordinate(x, y):
+def find_ship_matching_coordinate(x, y, player):
+  # Takes guessed coordinates and current player to look in opponent ship list to see if they've struck a ship.
   selected_coords = (x, y)
-  for ship in computer_ships:
-    if selected_coords in ship.coords:
-      print(f"Wowza! You hit their {ship.ship_type}!")
-      ship.coords.remove(selected_coords)
-      if not ship.coords:
-        print(f"You sunk their {ship.ship_type}! Way to go!")
+  if player == "player":
+    for ship in computer_ships:
+      if selected_coords in ship.coords:
+        print(f"Wowza! You got a hit!")
+        ship.coords.remove(selected_coords)
+        if not ship.coords:
+          time.sleep(1)
+          print(f"\nYou sunk their {ship.ship_type}! Way to go!")
+  if player == "computer":
+    for ship in player_ships:
+      if selected_coords in ship.coords:
+        print(f"Oh no! They hit your {ship.ship_type}!")
+        ship.coords.remove(selected_coords)
+        if not ship.coords:
+          time.sleep(1)
+          print(f"\nOH NO! They sunk your {ship.ship_type}! That cost us a lot of money! {random.randint(1, 1000)} crew also perished. Damn.")
+
 
 
 # Player Introduction
@@ -123,8 +135,7 @@ computer_carrier = Ship(ship_type="carrier", size=5, letter="C")
 computer_player.place_computer_boat(computer_carrier, computer_board)
 computer_ships.append(computer_carrier)
 
-# Show boards
-computer_board.show_board()
+# Show board
 player_board.show_board()
 
 print("""\n
@@ -153,6 +164,7 @@ any_computer_ships = check_for_ships(computer_board.board, ship_letters)
 
 # Iterates through until 'all_ships_sunk' finds no more "S"'s on the board, meaning all player ships have been sunk
 while any_player_ships and any_computer_ships:
+
   # Computer guesses
   player_board.show_board()
   time.sleep(1)
@@ -164,7 +176,7 @@ while any_player_ships and any_computer_ships:
     print("\nHaha he missed.")
     player_board.board[computer_y][computer_x] = "-"
   else:
-    print(f"Oh crap bro! He hit a {current_guess}!")
+    find_ship_matching_coordinate(computer_x, computer_y, "computer")
     player_board.board[computer_y][computer_x] = "X"
   player_board.show_board()
   time.sleep(2)
@@ -180,7 +192,7 @@ while any_player_ships and any_computer_ships:
     print("\nHaha YOU missed!")
   else:
     # Finds struck ship and notifies user of hit/sinking
-    find_ship_matching_coordinate(guess_x, guess_y)
+    find_ship_matching_coordinate(guess_x, guess_y, "player")
     computer_board.board[guess_y][guess_x] = "X"
     hidden_computer_board.board[guess_y][guess_x] = "X"
   hidden_computer_board.show_board()
