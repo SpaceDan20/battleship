@@ -3,6 +3,7 @@ class Board():
         self.board = [['O' for _ in range(10)] for _ in range(10)]
         self.name = name
 
+
     def show_board(self):
         # Prints current self.board (10x10 grid with sea spaces and any ships)
         print("-------------------------")
@@ -33,6 +34,7 @@ class Board():
             elif orientation == "down":
                 self.board[y+i][x] = ship.letter
                 ship.coords.append((x, y+i))
+
 
     def check_if_clear(self, ship, orientation, x, y):
         spaces_to_fill = []

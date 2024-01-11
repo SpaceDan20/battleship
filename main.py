@@ -36,13 +36,14 @@ def ask_for_orientation(ship, possible_orientations, x, y):
       return chosen_orientation
 
 
-def place_ship(ship):
+def place_player_ship(ship):
   # runs other functions related to building a player's ship
   x, y = get_coords(ship)
   player_board.place_bow(ship, x, y)
   possible_orientations = find_orientations(ship, x, y)
   orientation = ask_for_orientation(ship, possible_orientations, x, y)
   player_board.place_rest_of_ship(ship, orientation, x, y)
+  player_ships.append(ship)
   player_board.show_board()
 
 
@@ -53,6 +54,16 @@ def check_for_ships(board, ship_letters):
       if any(letter in sea_space for letter in ship_letters):
         return True
   return False
+
+
+def find_ship_matching_coordinate(x, y):
+  selected_coords = (x, y)
+  for ship in computer_ships:
+    if selected_coords in ship.coords:
+      print(f"Wowza! You hit their {ship.ship_type}!")
+      ship.coords.remove(selected_coords)
+      if not ship.coords:
+        print(f"You sunk their {ship.ship_type}! Way to go!")
 
 
 # Player Introduction
@@ -66,7 +77,9 @@ print("""
 
 # Set up players and boards
 player = Player()
+player_ships = []
 computer_player = ComputerPlayer()
+computer_ships = []
 player_board = Board("Player")
 computer_board = Board("Computer")
 # This board is the board shown to the player when taking turns firing
@@ -76,35 +89,42 @@ hidden_computer_board = Board("Computer")
 player_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
 x, y = get_coords(player_patrol_boat)
 player_board.place_bow(player_patrol_boat, x, y)
+player_ships.append(player_patrol_boat)
 player_board.show_board()
 
 # Create remaining player ships and place them on the board, using player's inputs in 'place_ship()'
 # Destroyer
 player_destroyer = Ship(ship_type="destroyer", size=2, letter="D")
-place_ship(player_destroyer)
+place_player_ship(player_destroyer)
 # Submarine
 player_submarine = Ship(ship_type="submarine", size=3, letter="S")
-place_ship(player_submarine)
+place_player_ship(player_submarine)
 # Battleship
 player_battleship = Ship(ship_type="battleship", size=4, letter="B")
-place_ship(player_battleship)
+place_player_ship(player_battleship)
 # Carrier
 player_carrier = Ship(ship_type="carrier", size=5, letter="C")
-place_ship(player_carrier)
+place_player_ship(player_carrier)
 
 # Computer creates and places its ships
 computer_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
 computer_player.place_computer_boat(computer_patrol_boat, computer_board)
+computer_ships.append(computer_patrol_boat)
 computer_destroyer = Ship(ship_type="destroyer", size=2, letter="D")
 computer_player.place_computer_boat(computer_destroyer, computer_board)
+computer_ships.append(computer_destroyer)
 computer_submarine = Ship(ship_type="submarine", size=3, letter="S")
 computer_player.place_computer_boat(computer_submarine, computer_board)
+computer_ships.append(computer_submarine)
 computer_battleship = Ship(ship_type="battleship", size=4, letter="B")
 computer_player.place_computer_boat(computer_battleship, computer_board)
+computer_ships.append(computer_battleship)
 computer_carrier = Ship(ship_type="carrier", size=5, letter="C")
 computer_player.place_computer_boat(computer_carrier, computer_board)
+computer_ships.append(computer_carrier)
 
 # Show boards
+computer_board.show_board()
 player_board.show_board()
 
 print("""\n
@@ -159,7 +179,8 @@ while any_player_ships and any_computer_ships:
     hidden_computer_board.board[guess_y][guess_x] = "-"
     print("\nHaha YOU missed!")
   else:
-    print(f"Wowza! You hit a {computer_board.board[guess_y][guess_x]}")
+    # Finds struck ship and notifies user of hit/sinking
+    find_ship_matching_coordinate(guess_x, guess_y)
     computer_board.board[guess_y][guess_x] = "X"
     hidden_computer_board.board[guess_y][guess_x] = "X"
   hidden_computer_board.show_board()

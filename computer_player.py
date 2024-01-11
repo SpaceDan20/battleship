@@ -4,11 +4,13 @@ class ComputerPlayer():
     def __init__(self):
         self.guesses = []
 
+
     def generate_coords(self):
         x = random.randint(0, 9)
         y = random.randint(0, 9)
         return [x, y]
     
+
     def find_and_choose_orientations(self, ship, board, x, y):
         # Takes x and y coordinates and ship size to determine possible orientations
         possible_orientations = []
@@ -27,6 +29,7 @@ class ComputerPlayer():
         chosen_orientation = random.choice(possible_orientations)
         return chosen_orientation
 
+
     def place_computer_boat(self, ship, board):
         # Loops through while generating coords so ships aren't placed on top of each other.
         placing = True
@@ -37,6 +40,7 @@ class ComputerPlayer():
                 orientation = self.find_and_choose_orientations(ship, board, coords[0], coords[1])
                 board.place_rest_of_ship(ship, orientation, coords[0], coords[1])
                 break
+
 
     def make_computer_guess(self):
         # loops through to generate random coordinate guess not already chosen
