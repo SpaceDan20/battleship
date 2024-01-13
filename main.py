@@ -8,8 +8,18 @@ from computer_player import ComputerPlayer
 
 def get_coords(ship):
   # Gets user coordinates for current ship
-  x = int(input(f"\nYou get a {ship.ship_type}. Where do you want her? X-coordinate (1-10): ")) - 1
-  y = int(input("Bow y-coordinate (1-10): ")) - 1
+  while True:
+    # loops until x is a digit between 1 and 10
+    x = input(f"\nYou get a {ship.ship_type}. Where do you want her? X-coordinate (1-10): ")
+    x = player.verify_coord(x)
+    if x != None:
+      break
+  while True:
+    # loops until y is a digit between 1 and 10
+    y = input("Bow y-coordinate (1-10): ")
+    y = player.verify_coord(y)
+    if y != None:
+      break
   return x, y
 
 
@@ -62,7 +72,7 @@ def find_ship_matching_coordinate(x, y, player):
   if player == "player":
     for ship in computer_ships:
       if selected_coords in ship.coords:
-        print(f"Wowza! You got a hit!")
+        print(f"\nWowza! You got a hit!")
         ship.coords.remove(selected_coords)
         if not ship.coords:
           time.sleep(1)
@@ -76,7 +86,6 @@ def find_ship_matching_coordinate(x, y, player):
           time.sleep(1)
           print(f"\nOH NO! They sunk your {ship.ship_type}! That cost us a lot of money! {random.randint(1, 1000)} crew also perished. Damn.")
           computer_player.recent_hit = ()
-
 
 
 # Player Introduction
