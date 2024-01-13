@@ -69,7 +69,6 @@ class ComputerPlayer():
                         (x, y - 1)]
             # Loops through choices to make sure list only contains unchosen, adjacent coordinates
             for choice in self.choices.copy():
-                print(choice)
                 if choice[0] in [-1, 10] or choice[1] in [-1, 10] or choice in self.guesses:
                     self.choices.remove(choice)
             # if choices isn't empty, selects one of them as the guess
