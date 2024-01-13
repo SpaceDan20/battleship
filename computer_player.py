@@ -3,6 +3,8 @@ import random
 class ComputerPlayer():
     def __init__(self):
         self.guesses = []
+        self.choices = []
+        self.recent_hit = ()
 
 
     def generate_coords(self):
@@ -42,8 +44,8 @@ class ComputerPlayer():
                 break
 
 
-    def make_computer_guess(self):
-        # loops through to generate random coordinate guess not already chosen
+    def make_random_guess(self):
+        # loops through until random, unguessed coordinate is chosen
         guessing = True
         while guessing:
             x = random.randint(0, 9)
@@ -51,4 +53,35 @@ class ComputerPlayer():
             if (x, y) not in self.guesses:
                 self.guesses.append((x, y))
                 guessing = False
+                return (x, y)
+                
+    
+    def make_informed_guess(self):
+        # loops through until informed, unguessed coordinate is chosen
+        guessing = True
+        while guessing:
+            x = self.recent_hit[0]
+            y = self.recent_hit[1]
+            # finds adjacent sea spaces and populates self.choices with them
+            self.choices = [(x + 1, y),
+                        (x - 1, y),
+                        (x, y + 1),
+                        (x, y - 1)]
+            # Loops through choices to make sure list only contains unchosen, adjacent coordinates
+            for choice in self.choices.copy():
+                print(choice)
+                if choice[0] in [-1, 10] or choice[1] in [-1, 10] or choice in self.guesses:
+                    self.choices.remove(choice)
+            # if choices isn't empty, selects one of them as the guess
+            if self.choices:
+                x, y = random.choice(self.choices)
+                if (x, y) not in self.guesses:
+                    self.guesses.append((x, y))
+                    guessing = False
+                    return (x, y)
+            # if choices is empty, clears recent_hit and makes random guess
+            else:
+                self.recent_hit = ()
+                guessing = False
+                x, y = self.make_random_guess()
                 return (x, y)

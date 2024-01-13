@@ -75,6 +75,7 @@ def find_ship_matching_coordinate(x, y, player):
         if not ship.coords:
           time.sleep(1)
           print(f"\nOH NO! They sunk your {ship.ship_type}! That cost us a lot of money! {random.randint(1, 1000)} crew also perished. Damn.")
+          computer_player.recent_hit = ()
 
 
 
@@ -168,7 +169,11 @@ while any_player_ships and any_computer_ships:
   # Computer guesses
   player_board.show_board()
   time.sleep(1)
-  computer_x, computer_y = computer_player.make_computer_guess()
+  # Checks to see if computer had a hit recently in order to make informed guess, if possible
+  if computer_player.recent_hit:
+    computer_x, computer_y = computer_player.make_informed_guess()
+  else:
+    computer_x, computer_y = computer_player.make_random_guess()
   print(f"The computer chooses {computer_x + 1}, {computer_y + 1}")
   time.sleep(2)
   current_guess = player_board.board[computer_y][computer_x]
@@ -176,8 +181,9 @@ while any_player_ships and any_computer_ships:
     print("\nHaha he missed.")
     player_board.board[computer_y][computer_x] = "-"
   else:
-    find_ship_matching_coordinate(computer_x, computer_y, "computer")
     player_board.board[computer_y][computer_x] = "X"
+    computer_player.recent_hit = (computer_x, computer_y)
+    find_ship_matching_coordinate(computer_x, computer_y, "computer")
   player_board.show_board()
   time.sleep(2)
   any_player_ships = check_for_ships(player_board.board, ship_letters)
