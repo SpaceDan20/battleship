@@ -6,23 +6,6 @@ from player import Player
 from computer_player import ComputerPlayer
 
 
-def get_coords(ship):
-  # Gets user coordinates for current ship
-  while True:
-    # loops until x is a digit between 1 and 10
-    x = input(f"\nYou get a {ship.ship_type}. Where do you want her? X-coordinate (1-10): ")
-    x = player.verify_coord(x)
-    if x != None:
-      break
-  while True:
-    # loops until y is a digit between 1 and 10
-    y = input("Bow y-coordinate (1-10): ")
-    y = player.verify_coord(y)
-    if y != None:
-      break
-  return x, y
-
-
 def find_orientations(ship, x, y):
   # Takes x and y coordinates and ship size to determine possible orientations
   possible_orientations = []
@@ -48,7 +31,7 @@ def ask_for_orientation(ship, possible_orientations, x, y):
 
 def place_player_ship(ship):
   # runs other functions related to building a player's ship
-  x, y = get_coords(ship)
+  x, y = player.get_coords(ship)
   player_board.place_bow(ship, x, y)
   possible_orientations = find_orientations(ship, x, y)
   orientation = ask_for_orientation(ship, possible_orientations, x, y)
@@ -109,7 +92,7 @@ hidden_computer_board = Board("Computer")
 
 # Create player's patrol boat
 player_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
-x, y = get_coords(player_patrol_boat)
+x, y = player.get_coords(player_patrol_boat)
 player_board.place_bow(player_patrol_boat, x, y)
 player_ships.append(player_patrol_boat)
 player_board.show_board()
