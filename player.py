@@ -3,19 +3,24 @@ class Player():
         self.guesses = []
 
 
-    def get_coords(self, ship):
+    def get_coords(self, ship, board):
         # Gets user coordinates for current ship
-        # while loops loop through until x and y are digits between 1 and 10
+        # loops through until unchosen, valid x,y coordinate is picked
         while True:
-            x = input(f"\nYou get a {ship.ship_type}. Where do you want her? X-coordinate (1-10): ")
-            x = self.verify_coord(x)
-            if x != None:
+            while True:
+                x = input(f"\nYou get a {ship.ship_type}. Where do you want her? X-coordinate (1-10): ")
+                x = self.verify_coord(x)
+                if x != None:
+                    break
+            while True:
+                y = input("Bow y-coordinate (1-10): ")
+                y = self.verify_coord(y)
+                if y != None:
+                    break
+            if board.board[y][x] == "O":
                 break
-        while True:
-            y = input("Bow y-coordinate (1-10): ")
-            y = self.verify_coord(y)
-            if y != None:
-                break
+            else:
+                print("\nNo commander! We've already got a ship there!")
         return x, y
 
 

@@ -38,9 +38,8 @@ class ComputerPlayer():
         while placing:
             coords = self.generate_coords()
             if board.board[coords[1]][coords[0]] == "O":
-                board.place_bow(ship, coords[0], coords[1])
                 orientation = self.find_and_choose_orientations(ship, board, coords[0], coords[1])
-                board.place_rest_of_ship(ship, orientation, coords[0], coords[1])
+                board.place_ship(ship, orientation, coords[0], coords[1])
                 break
 
 

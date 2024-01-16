@@ -6,36 +6,44 @@ from player import Player
 from computer_player import ComputerPlayer
 
 
-def find_orientations(ship, x, y):
+def pick_orientation(ship, board, x, y):
   # Takes x and y coordinates and ship size to determine possible orientations
   possible_orientations = []
   if y - ship.size + 1 >= 0:
-    possible_orientations.append("up")
+      if board.check_if_clear(ship, "up", x, y):
+          possible_orientations.append("up")
   if y + ship.size - 1 <= 9:
-    possible_orientations.append("down")
+      if board.check_if_clear(ship, "down", x, y):
+          possible_orientations.append("down")
   if x - ship.size + 1 >= 0:
-    possible_orientations.append("left")
+      if board.check_if_clear(ship, "left", x, y):
+          possible_orientations.append("left")
   if x + ship.size - 1 <= 9:
-    possible_orientations.append("right")
-  return possible_orientations
+      if board.check_if_clear(ship, "right", x, y):
+          possible_orientations.append("right")
+  # Returns False if no orientation to choose from
+  if not possible_orientations:
+    return False
+  else:
+    placing = True
+    # loops through until valid orientation is chosen
+    while placing:
+      chosen_orientation = input(f"You can create the rest of the ship in these orientations: {possible_orientations}. Which one do you want? ").lower()
+      if chosen_orientation in possible_orientations:
+        return chosen_orientation
 
 
-def ask_for_orientation(ship, possible_orientations, x, y):
-  # Takes ship and possible orientation and asks user which orientation it wants
-  placing = True
-  while placing:
-    chosen_orientation = input(f"You can create the rest of the ship in these orientations: {possible_orientations}. Which one do you want? ").lower()
-    if chosen_orientation in possible_orientations:
-      return chosen_orientation
-
-
-def place_player_ship(ship):
+def place_player_ship(ship, board):
   # runs other functions related to building a player's ship
-  x, y = player.get_coords(ship)
-  player_board.place_bow(ship, x, y)
-  possible_orientations = find_orientations(ship, x, y)
-  orientation = ask_for_orientation(ship, possible_orientations, x, y)
-  player_board.place_rest_of_ship(ship, orientation, x, y)
+  # loops through until valid placement is selected
+  while True:
+    x, y = player.get_coords(ship, board)
+    orientation = pick_orientation(ship, player_board, x, y)
+    if orientation != False:
+      break
+    else:
+      print(f"\nYou set youself up, commander. There ain't enough sea for your {ship.ship_type} to go there!")
+  player_board.place_ship(ship, orientation, x, y)
   player_ships.append(ship)
   player_board.show_board()
 
@@ -92,24 +100,24 @@ hidden_computer_board = Board("Computer")
 
 # Create player's patrol boat
 player_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
-x, y = player.get_coords(player_patrol_boat)
-player_board.place_bow(player_patrol_boat, x, y)
+x, y = player.get_coords(player_patrol_boat, player_board)
+player_board.place_ship(player_patrol_boat, "up", x, y)
 player_ships.append(player_patrol_boat)
 player_board.show_board()
 
 # Create remaining player ships and place them on the board, using player's inputs in 'place_ship()'
 # Destroyer
 player_destroyer = Ship(ship_type="destroyer", size=2, letter="D")
-place_player_ship(player_destroyer)
+place_player_ship(player_destroyer, player_board)
 # Submarine
 player_submarine = Ship(ship_type="submarine", size=3, letter="S")
-place_player_ship(player_submarine)
+place_player_ship(player_submarine, player_board)
 # Battleship
 player_battleship = Ship(ship_type="battleship", size=4, letter="B")
-place_player_ship(player_battleship)
+place_player_ship(player_battleship, player_board)
 # Carrier
 player_carrier = Ship(ship_type="carrier", size=5, letter="C")
-place_player_ship(player_carrier)
+place_player_ship(player_carrier, player_board)
 
 # Computer creates and places its ships
 computer_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
