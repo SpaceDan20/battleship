@@ -7,4 +7,9 @@ class Ship:
     self.size = size
     self.letter = letter
     self.coords = []
+    self.crew = {"patrol boat": 100,
+                 "destroyer": 200,
+                 "submarine": 500,
+                 "battleship": 1000,
+                 "carrier": 3000}
     

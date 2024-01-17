@@ -75,7 +75,7 @@ def find_ship_matching_coordinate(x, y, player):
         ship.coords.remove(selected_coords)
         if not ship.coords:
           time.sleep(1)
-          print(f"\nOH NO! They sunk your {ship.ship_type}! That cost us a lot of money! {random.randint(1, 1000)} crew also perished. Damn.")
+          print(f"\nOH NO! They sunk your {ship.ship_type}! That cost us a lot of money! {random.randint(1, ship.crew[ship.ship_type])} crew also perished. Rip.")
           computer_player.recent_hit = ()
 
 
@@ -84,8 +84,11 @@ print("""
       Welcome to Battleship!
       Good news! The government allotted us more money at the expense of useless housing and road-fixing projects, so we have FIVE ships now!
       This will make us a VERY powerful navy that will put FEAR into the enemy computer.
-      At the moment, our construction team isn't the brightest, so if you build two ships at the same place... well...
-      Let's just say they won't bat an eye when the two ships merge into one. Try to avoid doing that, as smart as that seems.
+      So, the power is in your hands, commander. Choose where to place your ships carefully.
+      ...
+      Oh, you thought they could just move around? Lol.
+      We're short on budget still, so we have just enough ship fuel to move them to a coordinate position, where they will sit forever.
+      Hopefully. Hey, it's better than the bottom of the sea.
       """)
 
 # Set up players and boards
@@ -138,6 +141,7 @@ computer_ships.append(computer_carrier)
 
 # Show board
 player_board.show_board()
+computer_board.show_board()
 
 print("""\n
       This is your part of the sea. Let's keep it that way.
