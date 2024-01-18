@@ -1,5 +1,6 @@
 import random
 import time
+import os
 from ship import Ship
 from board import Board
 from player import Player
@@ -45,6 +46,7 @@ def place_player_ship(ship, board):
       print(f"\nYou set youself up, commander. There ain't enough sea for your {ship.ship_type} to go there!")
   player_board.place_ship(ship, orientation, x, y)
   player_ships.append(ship)
+  os.system("cls")
   player_board.show_board()
 
 
@@ -121,6 +123,7 @@ place_player_ship(player_battleship, player_board)
 # Carrier
 player_carrier = Ship(ship_type="carrier", size=5, letter="C")
 place_player_ship(player_carrier, player_board)
+os.system("cls")
 
 # Computer creates and places its ships
 computer_patrol_boat = Ship(ship_type="patrol boat", size=1, letter="P")
@@ -141,7 +144,6 @@ computer_ships.append(computer_carrier)
 
 # Show board
 player_board.show_board()
-computer_board.show_board()
 
 print("""\n
       This is your part of the sea. Let's keep it that way.
@@ -180,6 +182,7 @@ while any_player_ships and any_computer_ships:
     computer_x, computer_y = computer_player.make_random_guess()
   print(f"The computer chooses {computer_x + 1}, {computer_y + 1}")
   time.sleep(2)
+  os.system("cls")
   current_guess = player_board.board[computer_y][computer_x]
   if current_guess not in ship_letters:
     print("\nHaha he missed.")
@@ -195,6 +198,7 @@ while any_player_ships and any_computer_ships:
   # Player guesses
   hidden_computer_board.show_board()
   guess_x, guess_y = player.make_player_guess()
+  os.system("cls")
   current_player_guess = computer_board.board[guess_y][guess_x]
   if current_player_guess not in ship_letters:
     computer_board.board[guess_y][guess_x] = "-"
@@ -207,7 +211,9 @@ while any_player_ships and any_computer_ships:
     hidden_computer_board.board[guess_y][guess_x] = "X"
   hidden_computer_board.show_board()
   time.sleep(2)
+  os.system("cls")
   any_computer_ships = check_for_ships(computer_board.board, ship_letters)
+  
 
 
 # Winning conditions

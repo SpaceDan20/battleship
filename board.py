@@ -7,10 +7,10 @@ class Board():
     def show_board(self):
         # Prints current self.board (10x10 grid with sea spaces and any ships)
         print("-------------------------")
-        print(f"{self.name} Board:")
+        print(f"{self.name} Board:\n")
         for row in self.board:
             print(" ".join(row))
-        print("-------------------------")
+        print("\n-------------------------")
 
 
     def place_ship(self, ship, orientation, x, y):
